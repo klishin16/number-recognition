@@ -1,5 +1,4 @@
-Flask==3.0.0
+Flask
 numpy
-keras
+tflite-runtime
 pillow
-tensorflow

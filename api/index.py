@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, jsonify
-import keras.models
-from keras.preprocessing.image import array_to_img
-import re
 from io import BytesIO
 from PIL import Image
 import numpy as np
+import tflite_runtime.interpreter as tflite
 
 app = Flask(__name__)
-model = keras.models.load_model("data/model.h5")
+# model = keras.models.load_model("data/model.h5")
+interpreter = tflite.Interpreter(model_path="data/model.tflite")
+interpreter.get_signature_list()
+
 
 @app.route('/')
 def home():
@@ -27,7 +28,13 @@ def recognize():
     image_array = np.expand_dims(image_array, axis=-1)
     image_array = np.expand_dims(image_array, axis=0)
 
-    predict = model.predict(image_array)
+    lite_model = interpreter.get_signature_runner('serving_default')
+
+    print(interpreter.get_signature_list())
+
+    predict = lite_model(conv2d_3_input=image_array)['dense_1']
+
+    print(predict)
 
     print('predict', np.argmax(predict))
     
