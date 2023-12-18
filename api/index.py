@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import tflite_runtime.interpreter as tflite
 
@@ -20,7 +20,10 @@ def recognize():
     
     data = BytesIO(request.files.get('file').read())
     image = Image.open(data).resize(img_size).convert('L')
-     
+
+    pixel = image.getpixel((0, 0))
+    if (pixel > 127):
+        image = ImageOps.invert(image)
     
     image_array = np.array(image, dtype='float32')
     image_array = image_array/ 255.0
